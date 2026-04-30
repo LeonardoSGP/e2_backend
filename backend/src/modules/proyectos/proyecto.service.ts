@@ -1,12 +1,14 @@
 import { ProyectoRepository } from './proyecto.repository';
+import { toProyectoResponse, toProyectoResumen } from './proyecto.mapper';
 import { CreateProyectoDto, UpdateProyectoDto, ProyectoQueryOptions } from './proyecto.types';
 import { AppError } from '../../errors';
 
-
-
-
 export class ProyectoService {
-  constructor(private readonly proyectoRepository: ProyectoRepository = new ProyectoRepository()) {}
+  // Genera acoplamiento. En producción debería inyectarse desde fuera
+  // (ej. via framework DI o pasado explícitamente en el constructor del router).
+  constructor(
+    private readonly proyectoRepository: ProyectoRepository = new ProyectoRepository()
+  ) {}
 
   async getAllProyectos(options: ProyectoQueryOptions) {
     const { count, rows } = await this.proyectoRepository.findAllPaginated(options);
@@ -16,27 +18,14 @@ export class ProyectoService {
     return {
       success: true,
       data: {
-        proyectos: rows.map((p) => ({
-          ...p,
-          id: Number(p.id),
-          equipo_id: Number(p.equipo_id),
-          evento_id: Number(p.evento_id),
-          equipo: p.equipos ? {
-            ...p.equipos,
-            id: Number(p.equipos.id)
-          } : null,
-          evento: p.eventos ? {
-            ...p.eventos,
-            id: Number(p.eventos.id)
-          } : null
-        })),
+        proyectos: rows.map(toProyectoResumen),
         pagination: {
           total: count,
           page,
           limit,
-          totalPages: Math.ceil(count / limit)
-        }
-      }
+          totalPages: Math.ceil(count / limit),
+        },
+      },
     };
   }
 
@@ -46,52 +35,8 @@ export class ProyectoService {
       throw new AppError(404, 'Proyecto no encontrado');
     }
 
-    const formatProyecto = {
-      ...proyecto,
-      id: Number(proyecto.id),
-      equipo_id: Number(proyecto.equipo_id),
-      evento_id: Number(proyecto.evento_id),
-      equipo: proyecto.equipos ? {
-        ...proyecto.equipos,
-        id: Number(proyecto.equipos.id)
-      } : null,
-      evento: proyecto.eventos ? {
-        ...proyecto.eventos,
-        id: Number(proyecto.eventos.id)
-      } : null,
-      evaluaciones: (proyecto as any).evaluaciones.map((c: any) => ({
-        ...c,
-        id: Number(c.id),
-        proyecto_id: Number(c.proyecto_id),
-        juez_user_id: Number(c.juez_id),
-        criterio_id: Number(c.criterio_id),
-        puntuacion: Number(c.puntuacion),
-        criterio: c.evaluacion_criterios ? {
-            ...c.evaluacion_criterios,
-            id: Number(c.evaluacion_criterios.id),
-            evento_id: Number(c.evaluacion_criterios.evento_id),
-            ponderacion: Number(c.evaluacion_criterios.ponderacion)
-        } : null
-      })),
-      // Keep calificaciones alias for frontend compatibility
-      calificaciones: (proyecto as any).evaluaciones.map((c: any) => ({
-        ...c,
-        id: Number(c.id),
-        proyecto_id: Number(c.proyecto_id),
-        juez_user_id: Number(c.juez_id),
-        criterio_id: Number(c.criterio_id),
-        puntuacion: Number(c.puntuacion),
-        criterio: c.evaluacion_criterios ? {
-            ...c.evaluacion_criterios,
-            id: Number(c.evaluacion_criterios.id),
-            evento_id: Number(c.evaluacion_criterios.evento_id),
-            ponderacion: Number(c.evaluacion_criterios.ponderacion)
-        } : null
-      }))
-    };
-
     // Calculate despuntaje here or let frontend do it. Frontend has the data now.
-    return { success: true, data: formatProyecto };
+    return { success: true, data: toProyectoResponse(proyecto) };
   }
 
   async createProyecto(data: CreateProyectoDto) {
@@ -103,8 +48,8 @@ export class ProyectoService {
         ...proyecto,
         id: Number(proyecto.id),
         equipo_id: Number(proyecto.equipo_id),
-        evento_id: Number(proyecto.evento_id)
-      }
+        evento_id: Number(proyecto.evento_id),
+      },
     };
   }
 
