@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/Prisma-5.19-2D3748?logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
   <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://github.com/LeonardoSGP/e2_backend/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
 </p>
 
 ---
@@ -20,14 +21,18 @@
 
 - [Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [Arquitectura del Sistema](#-arquitectura-del-sistema)
+- [Infraestructura de Despliegue (Docker)](#-infraestructura-de-despliegue-docker)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Diagrama de Entidad-Relación (UML)](#-diagrama-de-entidad-relación-uml)
+- [Patrones de Diseño Utilizados](#-patrones-de-diseño-utilizados)
 - [Instalación](#-instalación)
 - [Variables de Entorno](#-variables-de-entorno)
 - [Ejecución](#-ejecución)
 - [Docker](#-docker)
 - [Endpoints de la API](#-endpoints-de-la-api)
 - [Scripts Disponibles](#-scripts-disponibles)
+- [Testing](#-testing)
+- [Pipeline CI/CD](#-pipeline-cicd)
 - [Buenas Prácticas y Notas](#-buenas-prácticas-y-notas)
 - [Autores](#-autores)
 
@@ -113,6 +118,57 @@ flowchart TD
 
 ---
 
+## 🐳 Infraestructura de Despliegue (Docker)
+
+El `docker-compose.yml` orquesta **3 contenedores** que conforman el stack completo:
+
+```mermaid
+flowchart LR
+    classDef user     fill:#F0FDF4,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef frontend fill:#41B883,stroke:#35495E,stroke-width:2px,color:#ffffff
+    classDef backend  fill:#EDE9FE,stroke:#6D28D9,stroke-width:2px,color:#4C1D95
+    classDef database fill:#DBEAFE,stroke:#1D4ED8,stroke-width:2px,color:#1E3A8A
+    classDef volume   fill:#FEF9C3,stroke:#CA8A04,stroke-width:1px,color:#713F12
+
+    Browser["🌐 Navegador\n(Usuario)"]:::user
+
+    subgraph Docker ["🐳 Docker Compose — Stack Completo"]
+        direction LR
+
+        subgraph FE ["📦 Contenedor: e2_frontend"]
+            Nginx["🟢 Nginx Alpine\nSirve Vue 3 SPA\nPuerto externo: 8080"]:::frontend
+        end
+
+        subgraph BE ["📦 Contenedor: e2_backend"]
+            Node["🟣 Node.js 20 Alpine\nExpress + Prisma\nPuerto externo: 3002"]:::backend
+        end
+
+        subgraph DB ["📦 Contenedor: e2_mysql"]
+            MySQL["🔵 MySQL 8.0\nBase de datos\nPuerto externo: 3307"]:::database
+        end
+
+        Vol1[("📁 backend_uploads\nVolumen Docker")]:::volume
+        Vol2[("📁 db_data\nVolumen Docker")]:::volume
+    end
+
+    Browser -- "HTTP :8080" --> Nginx
+    Nginx -- "proxy /api/* → :3001" --> Node
+    Nginx -- "proxy /uploads/* → :3001" --> Node
+    Node -- "TCP :3306" --> MySQL
+    Node --- Vol1
+    MySQL --- Vol2
+```
+
+| Contenedor | Imagen | Puerto Host | Puerto Interno | Descripción |
+|---|---|---|---|---|
+| `e2_frontend` | Nginx Alpine (build Vite) | `8080` | `80` | SPA Vue 3 servida por Nginx |
+| `e2_backend` | Node.js 20 Alpine | `3002` | `3001` | API REST Express + Prisma |
+| `e2_mysql` | MySQL 8.0 | `3307` | `3306` | Base de datos relacional |
+
+> 📖 Para instrucciones detalladas del frontend (instalación, variables, proxy), consulta [`frontend/README.md`](./frontend/README.md).
+
+---
+
 ## 📂 Estructura del Proyecto
 
 ```
@@ -160,7 +216,12 @@ e2_backend/
 │   │   └── utils/
 │   │       └── pdf.service.ts  # Servicio de generación de PDFs
 │   └── uploads/                # Archivos subidos (avatares, etc.)
-└── frontend/                   # Aplicación Vue 3 (separada)
+└── frontend/                   # Aplicación Vue 3 — ver frontend/README.md
+    ├── README.md               # 📖 Documentación del frontend
+    ├── Dockerfile              # Build multi-stage (Vite + Nginx)
+    ├── nginx.conf              # Proxy inverso al backend
+    ├── vite.config.ts          # Proxy de desarrollo → backend :3001
+    └── src/                    # Código fuente Vue 3
 ```
 
 ---
@@ -351,8 +412,10 @@ Crea un archivo `.env` en `backend/` basado en `.env.example`:
 | `DB_NAME` | Nombre de la base de datos | `gestor_proyectos` |
 | `DB_USER` | Usuario de MySQL | `root` |
 | `DB_PASS` | Contraseña de MySQL | `****` |
-| `JWT_SECRET` | Clave secreta para firmar tokens JWT | `****` |
-| `JWT_EXPIRES_IN` | Tiempo de expiración del token | `24h` |
+| `JWT_SECRET` | Clave secreta para firmar **access tokens** | `****` |
+| `JWT_EXPIRES_IN` | Duración del access token (vida corta) | `15m` |
+| `JWT_REFRESH_SECRET` | Clave secreta para firmar **refresh tokens** (distinta a `JWT_SECRET`) | `****` |
+| `JWT_REFRESH_EXPIRES_IN` | Duración del refresh token (vida larga) | `7d` |
 | `DATABASE_URL` | URL de conexión Prisma | `mysql://user:pass@host:port/db` |
 
 ---
@@ -405,9 +468,21 @@ docker compose down
 
 ### Características del contenedor Backend
 
-- **Build multi-stage:** Etapa de compilación (TypeScript → JavaScript) y etapa de producción ligera.
-- **Migraciones automáticas:** El `docker-entrypoint.sh` ejecuta `prisma db push` al arrancar el contenedor, sincronizando el esquema automáticamente.
+- **Build multi-stage:** Etapa de compilación (TypeScript → JavaScript) y etapa de producción ligera (`node:20-alpine`).
+- **`npm ci`:** Instala dependencias exactas del lockfile — builds reproducibles y más rápidos que `npm install`.
+- **`dos2unix` pre-instalado:** Instalado en la etapa de producción antes de usarse para convertir el `docker-entrypoint.sh`.
+- **Usuario no-root:** El proceso final corre como `node` (no `root`) por seguridad.
+- **Migraciones automáticas:** El `docker-entrypoint.sh` ejecuta `prisma db push` al arrancar.
 - **Volumen persistente:** Los archivos subidos (`uploads/`) se persisten mediante un volumen Docker.
+- **`.dockerignore`:** Excluye `node_modules/`, `uploads/`, `dist/`, `.env`, `tests/` y `coverage/` del contexto de build.
+
+### Características del contenedor Frontend
+
+- **Build multi-stage:** Etapa `build` con Node.js 20 Alpine (compila con Vite) y etapa `production` con Nginx.
+- **`npm ci`:** Builds reproducibles usando exactamente las versiones del `package-lock.json`.
+- **Imagen pinneada:** `nginx:1.27-alpine` — versión fija para evitar cambios inesperados en producción.
+- **Imagen final mínima:** Solo contiene el `dist/` compilado + Nginx. Sin Node.js, sin `node_modules`, sin código fuente.
+- **`.dockerignore`:** Excluye `node_modules/` y `dist/` locales para que Vite compile desde cero dentro del contenedor.
 
 ---
 
@@ -419,13 +494,15 @@ docker compose down
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `POST` | `/api/auth/register` | Registrar nuevo usuario |
-| `POST` | `/api/auth/login` | Iniciar sesión (devuelve JWT) |
+| `POST` | `/api/auth/register` | Registrar nuevo usuario (devuelve `token` + `refreshToken`) |
+| `POST` | `/api/auth/login` | Iniciar sesión (devuelve `token` + `refreshToken`) |
+| `POST` | `/api/auth/refresh` | Renovar el access token enviando el `refreshToken` en el body |
 | `GET` | `/api/auth/me` | Obtener perfil del usuario autenticado |
 | `POST` | `/api/auth/logout` | Cerrar sesión |
 | `PUT` | `/api/auth/profile` | Actualizar información personal |
 | `PUT` | `/api/auth/password` | Cambiar contraseña |
 | `POST` | `/api/auth/avatar` | Subir foto de perfil (multipart) |
+
 
 ### 🔴 Rutas de Administrador (`/api/admin/...`) — Rol: `ADMIN`
 
@@ -578,6 +655,9 @@ docker compose down
 | **build** | `npm run build` | Compilar TypeScript a JavaScript (`dist/`) |
 | **start** | `npm start` | Ejecutar el build de producción |
 | **seed** | `npm run seed` | Poblar la base de datos con datos iniciales |
+| **test** | `npm test` | Ejecutar toda la suite de tests |
+| **test:watch** | `npm run test:watch` | Tests en modo watch (re-ejecuta al guardar) |
+| **test:coverage** | `npm run test:coverage` | Tests con reporte de cobertura de código |
 
 ### Comandos Prisma útiles
 
@@ -586,6 +666,302 @@ npx prisma studio          # Editor visual de base de datos
 npx prisma db push         # Sincronizar esquema sin migración
 npx prisma migrate dev     # Crear migración de desarrollo
 npx prisma generate        # Regenerar el cliente Prisma
+```
+
+---
+
+## 🧪 Testing
+
+El proyecto implementa **dos niveles de tests** con Jest + ts-jest, todos sin necesidad de BD real (mocks de Prisma).
+
+### Ejecutar los tests
+
+```bash
+cd backend
+
+# Todos los tests (unitarios + integración)
+npm test
+
+# Modo watch — se re-ejecuta al guardar un archivo
+npm run test:watch
+
+# Reporte de cobertura de código (genera carpeta coverage/)
+npm run test:coverage
+```
+
+### Estructura de tests
+
+```
+backend/tests/
+├── jest.setup.ts              # Variables de entorno para el entorno de test
+│
+├── unit/                      # Tests UNITARIOS (services con mocks — sin BD)
+│   ├── auth.service.test.ts   # 5 tests — login, refresh, getMe
+│   ├── evento.service.test.ts # 5 tests — fechas, 404, delete validations
+│   └── proyecto.service.test.ts # 5 tests — paginación, 404, create/update/delete
+│
+└── auth.test.ts               # Tests de INTEGRACIÓN (HTTP con supertest + mock Prisma)
+```
+
+### Inventario de tests
+
+| Tipo | Archivo | Tests | Qué prueba |
+|------|---------|-------|-----------|
+| **Unitario** | `unit/auth.service.test.ts` | 5 | Login inválido, contraseña incorrecta, tokens generados, refresh inválido, getMe 404 |
+| **Unitario** | `unit/evento.service.test.ts` | 5 | Evento 404, fecha pasada, fecha_fin inválida, delete 404, delete evento activo |
+| **Unitario** | `unit/proyecto.service.test.ts` | 5 | Paginación, 404 en get/update/delete, create exitoso |
+| **Integración** | `auth.test.ts` | 5 | Login HTTP 200, sin token 401, rol incorrecto 403, email vacío 400, password wrong 401 |
+| | | **20 total** | |
+
+> 📖 Los tests unitarios usan **mocks del repositorio** — se inyecta un objeto con `jest.fn()` en el constructor del Service, por lo que nunca tocan Prisma ni MySQL. Los tests de integración usan `supertest` + `jest.mock('../src/prisma.config')`.
+
+---
+
+## 🧩 Patrones de Diseño Utilizados
+
+El sistema implementa cinco patrones de diseño reconocidos, cada uno justificado por una necesidad concreta del proyecto. A continuación se describe cada patrón con su ubicación exacta en el código.
+
+---
+
+### 1. 🔁 Singleton
+
+**Descripción:** Garantiza que exista una única instancia de un objeto durante toda la vida de la aplicación.
+
+**¿Por qué se usa aquí?**  
+Tanto el cliente de Prisma como el objeto de configuración se exportan como un módulo singleton. Crear múltiples instancias de `PrismaClient` provoca agotamiento del pool de conexiones a MySQL; un singleton compartido previene este problema.
+
+**Implementación:**
+
+```typescript
+// backend/src/prisma.config.ts
+const prisma = new PrismaClient({ log: ['query', 'info', 'warn', 'error'] });
+export default prisma; // ← misma instancia reutilizada en todo el backend
+```
+
+```typescript
+// backend/src/config.ts
+export const config = {        // ← objeto de configuración compartido globalmente
+  port: parsedEnv.data.PORT,
+  jwtSecret: parsedEnv.data.JWT_SECRET,
+  ...
+};
+```
+
+**Archivos:** `backend/src/prisma.config.ts`, `backend/src/config.ts`
+
+---
+
+### 2. 🗄️ Repository
+
+**Descripción:** Abstrae la lógica de acceso a datos detrás de una interfaz, desacoplando la capa de negocio (Service) de la tecnología de persistencia (Prisma/MySQL).
+
+**¿Por qué se usa aquí?**  
+Cada módulo de dominio tiene su propio repositorio (`*.repository.ts`) que encapsula todas las queries de Prisma. El Service solo llama métodos del repositorio sin conocer cómo se construyen las consultas SQL, lo que facilita pruebas unitarias con mocks y permite cambiar el ORM sin tocar la lógica de negocio.
+
+**Implementación:**
+
+```typescript
+// backend/src/modules/proyectos/proyecto.repository.ts
+export class ProyectoRepository {
+  async findAllPaginated(options: ProyectoQueryOptions) { ... }
+  async findById(id: number) { ... }
+  async create(data: CreateProyectoDto) { ... }
+  async update(id: number, data: UpdateProyectoDto) { ... }
+  async delete(id: number) { ... }
+}
+
+// backend/src/modules/proyectos/proyecto.service.ts
+export class ProyectoService {
+  constructor(private readonly proyectoRepository: ProyectoRepository) {}
+  // El service nunca toca Prisma directamente
+}
+```
+
+**Archivos:** `backend/src/modules/*/**.repository.ts` (15 módulos)
+
+---
+
+### 3. 🌐 API Gateway
+
+**Descripción:** Punto de entrada único que centraliza el enrutamiento, la seguridad y la orquestación de todas las peticiones externas hacia los servicios internos.
+
+**¿Por qué se usa aquí?**  
+`app.ts` actúa como el API Gateway del sistema: aplica middlewares globales (CORS, JSON parser), define guards de seguridad por rol (`adminGuard`, `juezGuard`, `participanteGuard`) y distribuye cada petición al router del módulo correspondiente. El cliente (Vue 3) solo conoce la URL base del gateway, no la ubicación individual de cada servicio.
+
+**Implementación:**
+
+```typescript
+// backend/src/app.ts
+const adminGuard       = [authMiddleware, requireRole(['ADMIN'])];
+const juezGuard        = [authMiddleware, requireRole(['JUEZ'])];
+const participanteGuard = [authMiddleware, requireRole(['PARTICIPANTE'])];
+
+// Enrutamiento centralizado con guards aplicados por grupo
+app.use('/api/admin/usuarios',  adminGuard,        userRouter);
+app.use('/api/admin/eventos',   adminGuard,        eventoRouter);
+app.use('/api/juez',            juezGuard,         juezRouter);
+app.use('/api/participante',    participanteGuard,  participanteDashboardRouter);
+```
+
+En producción, Nginx actúa como un segundo nivel de gateway redirigiendo el tráfico HTTP del frontend al contenedor del backend:
+
+```nginx
+# frontend/nginx.conf
+location /api/ { proxy_pass http://backend:3001; }
+```
+
+**Archivos:** `backend/src/app.ts`, `frontend/nginx.conf`
+
+---
+
+### 4. 🔄 Mapper / DTO (Data Transfer Object)
+
+**Descripción:** Transforma las entidades internas (modelos de Prisma con tipos `BigInt` y relaciones anidadas) en objetos de transferencia limpios y tipados que el cliente puede consumir directamente.
+
+**¿Por qué se usa aquí?**  
+Prisma devuelve `BigInt` para los IDs y objetos anidados con nombres de tabla en lugar de nombres de dominio. Los mappers convierten estos datos al formato esperado por el frontend sin exponer detalles internos del esquema de base de datos.
+
+**Implementación:**
+
+```typescript
+// backend/src/modules/proyectos/proyecto.mapper.ts
+export function toProyectoResponse(proyecto: ProyectoConRelaciones) {
+  return {
+    ...proyecto,
+    id:         Number(proyecto.id),          // BigInt → number
+    equipo_id:  Number(proyecto.equipo_id),
+    evento_id:  Number(proyecto.evento_id),
+    equipo:     proyecto.equipos   ? { ...proyecto.equipos,  id: Number(proyecto.equipos.id) }  : null,
+    evento:     proyecto.eventos   ? { ...proyecto.eventos,  id: Number(proyecto.eventos.id) }  : null,
+    evaluaciones: proyecto.evaluaciones.map(toEvaluacionResponse),
+  };
+}
+```
+
+**Archivos:** `backend/src/modules/*/**.mapper.ts` (presente en todos los módulos)
+
+---
+
+### 5. ⛓️ Chain of Responsibility (Middleware Pipeline)
+
+**Descripción:** Encadena manejadores de peticiones donde cada eslabón puede procesar la solicitud o pasarla al siguiente. Si alguno falla, la cadena se interrumpe y se devuelve la respuesta de error.
+
+**¿Por qué se usa aquí?**  
+Express implementa este patrón de forma nativa. Cada petición protegida pasa por una cadena de middlewares: primero `authMiddleware` verifica el JWT, luego `requireRole` valida el rol, y finalmente el router del módulo procesa la lógica. Si cualquier eslabón detecta un problema (token inválido, rol insuficiente), corta la cadena y retorna el error HTTP apropiado sin llegar al siguiente middleware.
+
+**Implementación:**
+
+```typescript
+// backend/src/middlewares/auth.middleware.ts
+export const authMiddleware = async (req, res, next) => {
+  // Verifica el JWT → si falla: res.status(401) y corta la cadena
+  // Si es válido: next() → pasa al siguiente eslabón
+};
+
+// backend/src/middlewares/role.middleware.ts
+export const requireRole = (allowedRoles: string[]) => (req, res, next) => {
+  // Verifica el rol → si no tiene permiso: res.status(403) y corta la cadena
+  // Si tiene permiso: next() → pasa al router del módulo
+};
+
+// backend/src/middlewares/error.middleware.ts
+export const errorMiddleware = (err, req, res, next) => {
+  // Captura cualquier excepción no manejada → respuesta JSON de error uniforme
+};
+
+// Cadena completa en app.ts:
+// authMiddleware → requireRole([...]) → router → errorMiddleware
+```
+
+**Archivos:** `backend/src/middlewares/auth.middleware.ts`, `backend/src/middlewares/role.middleware.ts`, `backend/src/middlewares/error.middleware.ts`
+
+---
+
+### Resumen de Patrones
+
+| # | Patrón | Categoría (curso) | Archivos clave |
+|---|--------|-------------------|----------------|
+| 1 | **Singleton** | Creacional | `prisma.config.ts`, `config.ts` |
+| 2 | **Repository** | Arquitectural | `modules/*/**.repository.ts` |
+| 3 | **API Gateway** | Estructural/Nube | `app.ts`, `nginx.conf` |
+| 4 | **Mapper / DTO** | Estructural | `modules/*/**.mapper.ts` |
+| 5 | **Chain of Responsibility** | Comportamental | `middlewares/*.middleware.ts` |
+
+---
+
+## 🚀 Pipeline CI/CD
+
+El proyecto utiliza **GitHub Actions** con dos workflows separados: uno para Integración Continua (CI) y otro para Entrega Continua (CD).
+
+### Archivos de workflow
+
+```
+.github/workflows/
+├── ci.yml   # Integración Continua — push/PR a master
+└── cd.yml   # Entrega Continua    — push a master (Docker Hub)
+```
+
+### Flujo completo
+
+```
+Push / PR a master
+        │
+        ▼
+┌─────────────────────────────────┐   ┌──────────────────────────────────┐
+│       CI — backend-ci           │   │       CI — frontend-ci           │
+│  📥 checkout                    │   │  📥 checkout                     │
+│  ⚙️  Node.js 20 + npm cache    │   │  ⚙️  Node.js 20 + npm cache     │
+│  📦 npm ci                      │   │  📦 npm ci                       │
+│  🔍 tsc --noEmit (type-check)  │   │  🏗️  Vite build                 │
+│  🧪 Tests unitarios (15 tests) │   │  📤 Artefacto dist/              │
+│  🔗 Tests integración (5 tests) │   └──────────────────────────────────┘
+│  📊 jest --coverage             │
+│  🏗️  npm run build             │
+│  📤 Artefacto dist/ + coverage  │
+└─────────────────────────────────┘
+        │
+        │  Solo en push directo a master (merge aprobado)
+        ▼
+┌─────────────────────────────────────────────────────────────┐
+│              CD — docker-build-push                          │
+│  🏷️  Tagging automático (latest + sha)                     │
+│  🔑 Login en Docker Hub                                     │
+│  🏗️  Build multi-plataforma (linux/amd64 + linux/arm64)   │
+│  📤 Push → <usuario>/deltos-backend:latest                  │
+│  📤 Push → <usuario>/deltos-frontend:latest                 │
+│  📋 Resumen del deploy en GitHub Actions                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Configurar el pipeline (paso a paso)
+
+#### 1. Secrets de GitHub requeridos
+
+Ve a tu repositorio → **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret / Variable | Tipo | Valor |
+|---|---|---|
+| `DOCKERHUB_TOKEN` | Secret | Access Token de Docker Hub (no la contraseña) |
+| `DOCKERHUB_USERNAME` | **Variable** (no secret) | Tu usuario de Docker Hub |
+| `JWT_SECRET` | Secret | Valor seguro para el JWT de los tests |
+| `JWT_REFRESH_SECRET` | Secret | Valor seguro para el refresh token de los tests |
+
+> ⚠️ `DOCKERHUB_USERNAME` va en **Variables** (no Secrets) porque se referencia con `vars.` en el workflow.
+
+#### 2. Obtener un Access Token de Docker Hub
+
+1. Ir a [hub.docker.com](https://hub.docker.com) → **Account Settings → Personal Access Tokens**
+2. Crear un token con permiso **Read & Write**
+3. Copiar el token y guardarlo como `DOCKERHUB_TOKEN` en GitHub Secrets
+
+#### 3. Comportamiento del CI (sin configuración adicional)
+
+El CI **funciona sin ningún secret configurado** — los tests no necesitan BD real ya que usan mocks de Prisma. Los secretos solo son necesarios para el step de Docker Hub en el CD.
+
+### Badges de estado
+
+```markdown
+![CI Status](https://github.com/LeonardoSGP/e2_backend/actions/workflows/ci.yml/badge.svg)
 ```
 
 ---

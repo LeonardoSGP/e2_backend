@@ -24,6 +24,7 @@ export interface AuthResponse {
       telefono?: string | null;
     };
     token?: string;
+    refreshToken?: string;
     dashboardRoute?: string;
   };
 }

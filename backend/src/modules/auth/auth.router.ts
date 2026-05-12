@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { AuthService } from './auth.service';
-import { loginSchema, registerSchema } from './auth.schema';
+import { loginSchema, registerSchema, refreshSchema } from './auth.schema';
 import { authMiddleware, AuthRequest } from '../../middlewares/auth.middleware';
 import multer from 'multer';
 import path from 'path';
@@ -194,6 +194,56 @@ router.post('/avatar', authMiddleware, uploadAvatar.single('avatar'), async (req
       message: 'Avatar actualizado correctamente',
       path: avatarUrl
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Renovar el access token usando un refresh token válido
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token recibido al hacer login o register
+ *     responses:
+ *       200:
+ *         description: Nuevo access token y refresh token generados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       description: Nuevo access token (15 min)
+ *                     refreshToken:
+ *                       type: string
+ *                       description: Nuevo refresh token (7 días)
+ *       401:
+ *         description: Refresh token inválido o expirado
+ */
+router.post('/refresh', validate(refreshSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { refreshToken } = req.body;
+    const result = await authService.refreshAccessToken(refreshToken);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

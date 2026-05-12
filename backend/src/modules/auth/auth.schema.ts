@@ -48,3 +48,9 @@ export const registerSchema = z.object({
     rol_id: z.number().optional(),
   }),
 });
+
+export const refreshSchema = z.object({
+  body: z.object({
+    refreshToken: z.string().min(1, 'El refreshToken es requerido'),
+  }),
+});

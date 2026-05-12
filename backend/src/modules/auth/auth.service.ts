@@ -50,6 +50,24 @@ function getDashboardRoute(roles: string[]): string {
   return '/login';
 }
 
+// ---- Token helpers -------------------------------------------------------
+function generateAccessToken(userId: number): string {
+  return jwt.sign(
+    { id: userId },
+    config.jwtSecret as jwt.Secret,
+    { expiresIn: config.jwtExpiresIn as any }
+  );
+}
+
+function generateRefreshToken(userId: number): string {
+  return jwt.sign(
+    { id: userId },
+    config.jwtRefreshSecret as jwt.Secret,
+    { expiresIn: config.jwtRefreshExpiresIn as any }
+  );
+}
+// --------------------------------------------------------------------------
+
 export class AuthService {
   constructor(private readonly authRepository: AuthRepository = new AuthRepository()) {}
 
@@ -73,7 +91,8 @@ export class AuthService {
       role: 'PARTICIPANTE',
     });
 
-    const token = jwt.sign({ id: Number(user.id) }, config.jwtSecret as jwt.Secret, { expiresIn: config.jwtExpiresIn as any });
+    const token        = generateAccessToken(Number(user.id));
+    const refreshToken = generateRefreshToken(Number(user.id));
     
     // No legacy table integration needed anymore
 
@@ -94,6 +113,7 @@ export class AuthService {
           telefono: (user as any).telefono || null,
         },
         token,
+        refreshToken,
         dashboardRoute,
       },
     };
@@ -110,7 +130,8 @@ export class AuthService {
       throw new AppError(401, 'Credenciales inválidas');
     }
 
-    const token = jwt.sign({ id: Number(user.id) }, config.jwtSecret as jwt.Secret, { expiresIn: config.jwtExpiresIn as any });
+    const token        = generateAccessToken(Number(user.id));
+    const refreshToken = generateRefreshToken(Number(user.id));
     const roles = await getUserRoles(user);
     const dashboardRoute = getDashboardRoute(roles);
 
@@ -128,6 +149,7 @@ export class AuthService {
           telefono: (user as any).telefono || null,
         },
         token,
+        refreshToken,
         dashboardRoute,
       },
     };
@@ -253,6 +275,36 @@ export class AuthService {
     return {
       success: true,
       message: 'Contraseña actualizada correctamente',
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Refresh Token: valida el refreshToken y emite un nuevo accessToken
+  // ---------------------------------------------------------------------------
+  async refreshAccessToken(refreshToken: string) {
+    let payload: { id: number };
+
+    try {
+      payload = jwt.verify(refreshToken, config.jwtRefreshSecret as jwt.Secret) as { id: number };
+    } catch {
+      throw new AppError(401, 'Refresh token inválido o expirado. Inicia sesión nuevamente.');
+    }
+
+    const user = await this.authRepository.findUserById(payload.id);
+    if (!user) {
+      throw new AppError(401, 'Usuario no encontrado.');
+    }
+
+    const newAccessToken  = generateAccessToken(Number(user.id));
+    const newRefreshToken = generateRefreshToken(Number(user.id));
+
+    return {
+      success: true,
+      message: 'Token renovado correctamente.',
+      data: {
+        token: newAccessToken,
+        refreshToken: newRefreshToken,
+      },
     };
   }
 }

@@ -1,0 +1,15 @@
+# railway.json — Configuración de Railway para el servicio Backend
+# Documentación: https://docs.railway.app/reference/config-as-code
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5,
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 60
+  }
+}
