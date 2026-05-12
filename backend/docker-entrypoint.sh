@@ -11,7 +11,7 @@ MAX_RETRIES=30
 RETRY_INTERVAL=2
 retries=0
 
-until npx prisma db execute --stdin <<< "SELECT 1;" > /dev/null 2>&1; do
+until echo "SELECT 1;" | npx prisma db execute --stdin > /dev/null 2>&1; do
   retries=$((retries + 1))
   if [ "$retries" -ge "$MAX_RETRIES" ]; then
     echo "❌ MySQL no respondió después de $((MAX_RETRIES * RETRY_INTERVAL)) segundos. Abortando."
