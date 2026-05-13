@@ -21,7 +21,7 @@
 
 - **🖥️ Frontend (Netlify):** [https://silly-capybara-cf4d11.netlify.app](https://silly-capybara-cf4d11.netlify.app)
 - **⚙️ Backend API (Railway):** [https://e2backend-production-6af0.up.railway.app](https://e2backend-production-6af0.up.railway.app)
-- **📚 Documentación Swagger:** [https://e2backend-production-6af0.up.railway.app/api/docs](https://e2backend-production-6af0.up.railway.app/api/docs)
+- **📚 Documentación Swagger:** [https://e2backend-production-6af0.up.railway.app/api-docs](https://e2backend-production-6af0.up.railway.app/api-docs)
 
 > **Nota:** El backend en Railway puede tardar unos segundos en responder la primera vez si estuvo inactivo (cold start), aunque la cuenta Trial intenta mantenerlo activo.
 
