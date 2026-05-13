@@ -32,6 +32,7 @@
 - [Entornos en Vivo (Producción)](#-entornos-en-vivo-producción)
 - [Tecnologías Utilizadas](#-tecnologías-utilizadas)
 - [Arquitectura del Sistema](#-arquitectura-del-sistema)
+- [Patrones de Diseño Utilizados](#-patrones-de-diseño-utilizados)
 - [Infraestructura de Despliegue (Docker)](#-infraestructura-de-despliegue-docker)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Diagrama de Entidad-Relación (UML)](#-diagrama-de-entidad-relación-uml)
@@ -126,6 +127,24 @@ flowchart TD
 6. El **Service** ejecuta la lógica de negocio, usa **Mappers** para transformar datos y lanza **AppError** en caso de fallo.
 7. El **Repository** interactúa con **Prisma Client** para las operaciones en base de datos.
 8. La respuesta regresa por el mismo camino al cliente.
+
+---
+
+## 🧩 Patrones de Diseño Utilizados
+
+Para cumplir con las mejores prácticas de ingeniería de software y construir un sistema escalable y resiliente, se han implementado explícitamente los siguientes **patrones de diseño**:
+
+### 1. Singleton (Creacional)
+**Justificación:** En una aplicación Node.js, crear múltiples conexiones a la base de datos por cada petición agota rápidamente el *Connection Pool* de MySQL.
+**Implementación:** Se implementó el patrón **Singleton** en `prisma.config.ts`. Este archivo exporta una única instancia global de `PrismaClient`. Cualquier repositorio o servicio que necesite acceder a la base de datos utiliza siempre esta misma y única instancia en memoria.
+
+### 2. API Gateway (Estructural / Infraestructura)
+**Justificación:** Un cliente (frontend) no debería conocer los puertos ni las IPs internas de los múltiples microservicios o contenedores.
+**Implementación:** En nuestra arquitectura Docker (`docker-compose.yml`), el contenedor **Nginx** actúa como un **API Gateway** ligero. Centraliza todo el tráfico en el puerto `8080`. Si la petición es para una vista, sirve la SPA de Vue; si empieza con `/api/*` o `/uploads/*`, actúa como proxy inverso y enruta la petición de forma transparente al contenedor de Node.js, aislando la topología interna de la red.
+
+### 3. Circuit Breaker / Retry Pattern (Resiliencia)
+**Justificación:** En la nube, los servicios arrancan en paralelo. Si Node.js intenta conectarse a MySQL antes de que este último esté listo, la aplicación crashearía inmediatamente, lo cual es inaceptable en producción.
+**Implementación:** Se implementó un mecanismo de **Circuit Breaker con Retry** en el script `docker-entrypoint.sh`. El backend hace pings controlados a la base de datos (`SELECT 1`). Si falla, en lugar de crashear, "abre el circuito", espera y reintenta. Si después de múltiples intentos falla definitivamente, aborta el despliegue con seguridad. Esto previene ciclos de reinicio infinitos (*crash loop backoff*).
 
 ---
 
