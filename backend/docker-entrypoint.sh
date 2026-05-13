@@ -30,8 +30,8 @@ echo "✅ Esquema sincronizado."
 
 # ─── Seed Automático (Solo si la base de datos está vacía) ────────────────
 echo "🔍 Verificando si es necesario inicializar datos (seed)..."
-USER_COUNT=$(echo "SELECT COUNT(*) FROM \`users\`;" | npx prisma db execute --stdin | grep -o '[0-9]*' | tail -1 || echo "0")
-if [ "$USER_COUNT" -eq "0" ]; then
+USER_COUNT=$(echo 'SELECT COUNT(*) FROM users;' | npx prisma db execute --stdin | grep -o '[0-9]*' | tail -1)
+if [ -z "$USER_COUNT" ] || [ "$USER_COUNT" -eq "0" ]; then
   echo "🌱 Base de datos vacía. Ejecutando seed inicial..."
   npx prisma db seed
   echo "✅ Seed completado."
