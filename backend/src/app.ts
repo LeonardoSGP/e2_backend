@@ -30,6 +30,7 @@ const app: Application = express();
   return this.toString();
 };
 
+const basePath = __dirname.replace(/\\/g, '/');
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -39,8 +40,8 @@ const swaggerOptions = {
     security: [{ bearerAuth: [] }],
   },
   apis: [
-    './src/modules/**/*.router.ts', './src/modules/**/*.schema.ts',
-    './dist/src/modules/**/*.router.js', './dist/src/modules/**/*.schema.js'
+    `${basePath}/modules/**/*.router.*`,
+    `${basePath}/modules/**/*.schema.*`
   ],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
