@@ -22,6 +22,7 @@
 - **🖥️ Frontend (Netlify):** [https://silly-capybara-cf4d11.netlify.app](https://silly-capybara-cf4d11.netlify.app)
 - **⚙️ Backend API (Railway):** [https://e2backend-production-6af0.up.railway.app](https://e2backend-production-6af0.up.railway.app)
 - **📚 Documentación Swagger:** [https://e2backend-production-6af0.up.railway.app/api-docs](https://e2backend-production-6af0.up.railway.app/api-docs)
+- **🚀 Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Descargar e importar en Postman)
 
 > **Nota:** El backend en Railway puede tardar unos segundos en responder la primera vez si estuvo inactivo (cold start), aunque la cuenta Trial intenta mantenerlo activo.
 
@@ -500,6 +501,7 @@ docker compose down
 ## 📡 Endpoints de la API
 
 > 📖 Documentación interactiva completa en **[/api-docs](http://localhost:3001/api-docs)** (Swagger UI).
+> 🚀 **Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Importable en Postman).
 
 ### 🔓 Autenticación (`/api/auth`)
 
