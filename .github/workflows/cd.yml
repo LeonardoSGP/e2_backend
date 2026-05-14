@@ -22,6 +22,9 @@
 name: CD — Docker Build & Push
 
 on:
+  # Se puede disparar manualmente desde la pestaña Actions
+  workflow_dispatch:
+  # También se dispara al hacer push a master, pero el job verifica secrets antes de ejecutar
   push:
     branches: [master]
 
@@ -40,9 +43,10 @@ jobs:
 
     # Solo ejecutar si los secrets de Docker Hub están configurados
     # (evita fallos en forks o entornos sin secrets)
-    if: |
-      vars.DOCKERHUB_USERNAME != '' &&
-      secrets.DOCKERHUB_TOKEN != ''
+    # Si no tienes secrets configurados, el job aparece como "skipped" (no como error)
+    env:
+      HAS_DOCKERHUB: ${{ secrets.DOCKERHUB_TOKEN }}
+    if: env.HAS_DOCKERHUB != ''
 
     steps:
       # 1. Clonar el repositorio
