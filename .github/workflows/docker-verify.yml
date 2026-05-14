@@ -1,0 +1,100 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Compose Verify — Verificación de Containerización
+# Deltos — Sistema de Gestión de Proyectos Académicos
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Disparadores:
+#   • Push a `master` que modifique archivos Docker o de configuración
+#   • Pull Requests que apunten a `master`
+#
+# Jobs:
+#   1. validate      → verifica sintaxis del docker-compose.yml
+#   2. docker-build  → construye las imágenes Docker sin publicar (dry run)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: 🐳 Docker Verify
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docker-compose.yml'
+      - 'backend/Dockerfile'
+      - 'frontend/Dockerfile'
+      - 'backend/docker-entrypoint.sh'
+      - 'backend/.dockerignore'
+      - 'frontend/.dockerignore'
+      - '.github/workflows/docker-verify.yml'
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1: Validar sintaxis de docker-compose.yml
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate:
+    name: ✅ Validar docker-compose.yml
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      # Verificar que el archivo docker-compose.yml tiene sintaxis válida
+      - name: 🔍 Validar sintaxis (docker compose config)
+        run: docker compose config --quiet
+
+      - name: 📋 Mostrar configuración resuelta
+        run: |
+          echo "## 🐳 Docker Compose — Configuración validada" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```yaml' >> $GITHUB_STEP_SUMMARY
+          docker compose config >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2: Construir imágenes Docker (sin publicar) — verifica Dockerfiles
+  # ─────────────────────────────────────────────────────────────────────────────
+  docker-build:
+    name: 🏗️ Build imágenes Docker (dry-run)
+    runs-on: ubuntu-latest
+    needs: validate
+
+    strategy:
+      matrix:
+        include:
+          - service: backend
+            context: ./backend
+            dockerfile: ./backend/Dockerfile
+          - service: frontend
+            context: ./frontend
+            dockerfile: ./frontend/Dockerfile
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Construir la imagen SIN hacer push (solo verificar que el Dockerfile funciona)
+      - name: 🏗️ Build ${{ matrix.service }} (sin push)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: false
+          tags: deltos-${{ matrix.service }}:ci-test
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+
+      - name: 📋 Resumen
+        run: |
+          echo "## 🏗️ Docker Build — ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Imagen \`deltos-${{ matrix.service }}:ci-test\` construida correctamente." >> $GITHUB_STEP_SUMMARY
+          echo "**Dockerfile:** \`${{ matrix.dockerfile }}\`" >> $GITHUB_STEP_SUMMARY

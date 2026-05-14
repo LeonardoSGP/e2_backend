@@ -13,6 +13,9 @@
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
   <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker" />
   <img src="https://github.com/LeonardoSGP/e2_backend/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
+  <img src="https://github.com/LeonardoSGP/e2_backend/actions/workflows/cd.yml/badge.svg" alt="CD Status" />
+  <img src="https://github.com/LeonardoSGP/e2_backend/actions/workflows/security.yml/badge.svg" alt="Security" />
+  <img src="https://github.com/LeonardoSGP/e2_backend/actions/workflows/docker-verify.yml/badge.svg" alt="Docker Verify" />
 </p>
 
 ---
