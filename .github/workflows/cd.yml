@@ -22,11 +22,9 @@
 name: CD — Docker Build & Push
 
 on:
-  # Se puede disparar manualmente desde la pestaña Actions
+  # Deploy manual desde la pestaña Actions → "Run workflow"
+  # Requiere configurar DOCKERHUB_USERNAME (variable) y DOCKERHUB_TOKEN (secret)
   workflow_dispatch:
-  # También se dispara al hacer push a master, pero el job verifica secrets antes de ejecutar
-  push:
-    branches: [master]
 
 # Un solo deploy a la vez en master
 concurrency:
@@ -40,13 +38,6 @@ jobs:
   docker-build-push:
     name: 🐳 Docker Build & Push → Docker Hub
     runs-on: ubuntu-latest
-
-    # Solo ejecutar si los secrets de Docker Hub están configurados
-    # (evita fallos en forks o entornos sin secrets)
-    # Si no tienes secrets configurados, el job aparece como "skipped" (no como error)
-    env:
-      HAS_DOCKERHUB: ${{ secrets.DOCKERHUB_TOKEN }}
-    if: env.HAS_DOCKERHUB != ''
 
     steps:
       # 1. Clonar el repositorio
