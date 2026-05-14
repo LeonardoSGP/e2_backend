@@ -17,6 +17,9 @@ logs/
 # Build outputs
 dist/
 
+# Test coverage reports
+coverage/
+
 # Backend
 backend/src/generated/prisma
 backend/scratch/
