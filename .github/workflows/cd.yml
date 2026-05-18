@@ -1,0 +1,122 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# CD — Entrega Continua con Docker Hub
+# Deltos — Sistema de Gestión de Proyectos Académicos
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Disparador:
+#   • Push directo a `master` (incluye merges de PRs aprobados)
+#   • Solo se ejecuta si el job de CI pasó correctamente
+#
+# Jobs:
+#   1. docker-build-push → construye las imágenes Docker y las sube a Docker Hub
+#
+# Secrets de GitHub requeridos (Settings → Secrets → Actions):
+#   DOCKERHUB_USERNAME  — tu usuario de Docker Hub
+#   DOCKERHUB_TOKEN     — Access Token de Docker Hub (no tu contraseña)
+#
+# Las imágenes resultantes:
+#   <DOCKERHUB_USERNAME>/deltos-backend:latest   (y :<sha-corto>)
+#   <DOCKERHUB_USERNAME>/deltos-frontend:latest  (y :<sha-corto>)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: CD — Docker Build & Push
+
+on:
+  # Deploy manual desde la pestaña Actions → "Run workflow"
+  # Requiere configurar DOCKERHUB_USERNAME (variable) y DOCKERHUB_TOKEN (secret)
+  workflow_dispatch:
+
+# Un solo deploy a la vez en master
+concurrency:
+  group: cd-master
+  cancel-in-progress: false   # No cancelar deploys en progreso
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB: Construir y publicar imágenes Docker en Docker Hub
+  # ─────────────────────────────────────────────────────────────────────────────
+  docker-build-push:
+    name: 🐳 Docker Build & Push → Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar el repositorio
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Extraer metadatos para tagging automático de las imágenes
+      #    Genera tags como: latest, master, <sha-corto>
+      - name: 🏷️ Extraer metadatos — Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKERHUB_USERNAME }}/deltos-backend
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=sha,prefix=sha-,format=short
+
+      - name: 🏷️ Extraer metadatos — Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKERHUB_USERNAME }}/deltos-frontend
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=sha,prefix=sha-,format=short
+
+      # 3. Configurar QEMU para builds multi-plataforma (amd64 + arm64)
+      - name: 🖥️ Configurar QEMU (multi-plataforma)
+        uses: docker/setup-qemu-action@v3
+
+      # 4. Configurar Docker Buildx (builder avanzado con caché)
+      - name: 🔧 Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5. Autenticarse en Docker Hub
+      - name: 🔑 Login en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 6. Construir y publicar imagen del BACKEND
+      #    Usa caché de GitHub Actions para acelerar builds sucesivos
+      - name: 🏗️ Build & Push — Backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=backend
+          cache-to:   type=gha,scope=backend,mode=max
+
+      # 7. Construir y publicar imagen del FRONTEND
+      - name: 🏗️ Build & Push — Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=frontend
+          cache-to:   type=gha,scope=frontend,mode=max
+
+      # 8. Resumen del deploy en el panel de GitHub Actions
+      - name: 📋 Resumen del deploy
+        run: |
+          echo "## 🚀 Deploy completado" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Imagen | Tags |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| \`deltos-backend\` | ${{ steps.meta-backend.outputs.tags }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`deltos-frontend\` | ${{ steps.meta-frontend.outputs.tags }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Actor:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

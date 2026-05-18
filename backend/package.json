@@ -22,7 +22,8 @@
       "./tests/jest.setup.ts"
     ],
     "testMatch": [
-      "**/tests/**/*.test.ts"
+      "**/tests/**/*.test.ts",
+      "**/tests/unit/**/*.test.ts"
     ],
     "moduleFileExtensions": [
       "ts",
@@ -36,6 +37,19 @@
           "tsconfig": "./tsconfig.json"
         }
       ]
+    },
+    "collectCoverageFrom": [
+      "src/modules/**/*.service.ts",
+      "src/modules/**/*.repository.ts",
+      "src/middlewares/**/*.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 10,
+        "functions": 15,
+        "lines": 15,
+        "statements": 15
+      }
     }
   },
   "dependencies": {

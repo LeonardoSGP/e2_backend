@@ -1,0 +1,35 @@
+# ── Dependencias ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+
+# ── Archivos de entorno (nunca copiar credenciales al contexto de build) ───────
+.env
+.env.*
+!.env.example
+
+# ── Archivos de subida de usuarios (gestionados por volumen Docker) ────────────
+uploads/
+
+# ── Tests (no se necesitan en la imagen de producción) ────────────────────────
+tests/
+coverage/
+jest.config.*
+
+# ── Herramientas de desarrollo ─────────────────────────────────────────────────
+.vscode/
+*.log
+*.err.log
+logs/
+
+# ── Git ────────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Docker (evitar referencia circular) ───────────────────────────────────────
+Dockerfile
+.dockerignore
+
+# ── Documentación ─────────────────────────────────────────────────────────────
+README.md

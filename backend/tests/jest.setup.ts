@@ -6,8 +6,10 @@
  * leer un archivo .env real ni conectarse a la base de datos.
  */
 
-process.env.NODE_ENV = 'test';
-process.env.PORT = '3001';
-process.env.JWT_SECRET = 'test-secret-super-seguro-para-jest-12345';
-process.env.JWT_EXPIRES_IN = '1h';
-process.env.DATABASE_URL = 'mysql://root:test@127.0.0.1:3306/gestor_test';
+process.env.NODE_ENV         = 'test';
+process.env.PORT             = '3001';
+process.env.JWT_SECRET       = 'test-secret-super-seguro-para-jest-12345';
+process.env.JWT_EXPIRES_IN   = '15m';
+process.env.JWT_REFRESH_SECRET      = 'test-refresh-secret-super-seguro-12345';
+process.env.JWT_REFRESH_EXPIRES_IN  = '7d';
+process.env.DATABASE_URL     = 'mysql://root:test@127.0.0.1:3306/gestor_test';

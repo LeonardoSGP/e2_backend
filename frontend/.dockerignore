@@ -1,0 +1,25 @@
+# ── Dependencias ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Build outputs (generado por Vite dentro del contenedor, no copiar el local) 
+dist/
+
+# ── Archivos de entorno ────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Herramientas de desarrollo ─────────────────────────────────────────────────
+.vscode/
+*.log
+
+# ── Git ────────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Docker (evitar referencia circular) ───────────────────────────────────────
+Dockerfile
+.dockerignore
+
+# ── Documentación ─────────────────────────────────────────────────────────────
+README.md

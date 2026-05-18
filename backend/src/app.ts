@@ -30,6 +30,7 @@ const app: Application = express();
   return this.toString();
 };
 
+const basePath = __dirname.replace(/\\/g, '/');
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -38,12 +39,29 @@ const swaggerOptions = {
     components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } } },
     security: [{ bearerAuth: [] }],
   },
-  apis: ['./src/modules/**/*.router.ts', './src/modules/**/*.schema.ts'],
+  apis: [
+    `${basePath}/modules/**/*.router.*`,
+    `${basePath}/modules/**/*.schema.*`
+  ],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Middlewares
-app.use(cors());
+// En producción, CORS acepta solo el dominio del frontend (FRONTEND_URL).
+// En desarrollo acepta cualquier origen.
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL]
+  : ['http://localhost:5173', 'http://localhost:8080'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permitir peticiones sin origin (Postman, servidor a servidor, Swagger)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS bloqueado para el origen: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Serve uploaded files (avatars, etc.)

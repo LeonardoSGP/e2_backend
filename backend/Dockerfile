@@ -1,45 +1,69 @@
-# Etapa de construcción
+# ────────────────────────────────────────────────────────────────────────────
+# Etapa 1: build — compila TypeScript a JavaScript
+# ────────────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS build
 
+LABEL stage="build"
+LABEL description="Etapa de compilación del backend Node.js / TypeScript"
+
 WORKDIR /app
 
-# Archivos de empaquetado iniciales
-COPY package*.json ./
-RUN apk add --no-cache openssl && npm install
+# openssl requerido por Prisma en Alpine
+RUN apk add --no-cache openssl
 
-# Copiar el todo el código
+# Copiar lockfile primero para aprovechar la caché de capas de Docker
+COPY package.json package-lock.json ./
+
+# npm ci instala exactamente las versiones del lockfile (reproducible)
+RUN npm ci
+
+# Copiar el resto del código fuente
+# (.dockerignore excluye node_modules, dist, uploads, .env, tests)
 COPY . .
 
-# Generar Prisma Client
+# Generar Prisma Client para la plataforma del contenedor
 RUN npx prisma generate
 
-# Compilar TypeScript a JavaScript en dist/
+# Compilar TypeScript → JavaScript en dist/
 RUN npm run build
 
-# Etapa de producción
-FROM node:20-alpine
+# ────────────────────────────────────────────────────────────────────────────
+# Etapa 2: producción — imagen final mínima (solo runtime)
+# ────────────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS production
+
+LABEL maintainer="Deltos — Gestión de Proyectos Académicos"
+LABEL description="Backend API REST — Node.js 20 + Express + Prisma"
 
 WORKDIR /app
 
-COPY package*.json ./
-# Instalar solo las dependencias necesarias de producción
-RUN npm install --omit=dev
-# Instalar openssl para Prisma en Alpine y prisma CLI global
-RUN apk add --no-cache openssl && \
-    npm install -g prisma
+# Instalar dependencias del sistema operativo necesarias en runtime
+# dos2unix: convierte saltos de línea CRLF→LF del script de entrypoint
+# openssl:  requerido por Prisma Client en Alpine
+RUN apk add --no-cache openssl dos2unix
 
-# Copiar estructura del compilado y prisma
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/prisma ./prisma
+# Copiar solo package files e instalar dependencias de producción
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copiar solo los artefactos necesarios de la etapa de build
+COPY --from=build /app/dist              ./dist
+COPY --from=build /app/prisma            ./prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 
-# Crear carpeta de uploads
+# Instalar Prisma CLI globalmente (necesario para prisma db push en entrypoint)
+RUN npm install -g prisma
+
+# Crear carpeta de uploads con permisos para el usuario node (no root)
 RUN mkdir -p uploads && chown -R node:node uploads
 
-# Script de entrada para migrar la base de datos de manera automatizada al arrancar
-COPY docker-entrypoint.sh /usr/local/bin/
+# Copiar y preparar el script de entrada
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN dos2unix /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Ejecutar como usuario no-root por seguridad
+USER node
 
 EXPOSE 3001
 

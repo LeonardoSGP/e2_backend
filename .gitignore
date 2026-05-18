@@ -1,12 +1,28 @@
 # General
 node_modules/
-.env
-*.log
 .vscode/
+
+# Logs de servidor (no deben versionarse)
+*.log
+*.err.log
+server.log
+server.err.log
+logs/
+
+# Variables de entorno (nunca versionar credenciales)
+.env
+.env.local
+.env.*.local
 
 # Build outputs
 dist/
 
+# Test coverage reports
+coverage/
+
 # Backend
 backend/src/generated/prisma
 backend/scratch/
+
+# Frontend
+frontend/dist/
