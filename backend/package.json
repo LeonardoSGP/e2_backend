@@ -13,7 +13,7 @@
     "test:coverage": "jest --coverage"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "jest": {
     "preset": "ts-jest",
