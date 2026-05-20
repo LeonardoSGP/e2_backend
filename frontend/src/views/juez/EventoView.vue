@@ -82,9 +82,9 @@
                 <tr v-for="(p, index) in sortedProyectos" :key="p.id" class="table-row">
                   <td style="padding:1.5rem 2rem; width:100px">
                     <div style="display:flex; align-items:center; justify-content:center; width:3rem; height:3rem; font-size:1.75rem">
-                      <template v-if="index === 0">🥇</template>
-                      <template v-else-if="index === 1">🥈</template>
-                      <template v-else-if="index === 2">🥉</template>
+                      <template v-if="index === 0"></template>
+                      <template v-else-if="index === 1"></template>
+                      <template v-else-if="index === 2"></template>
                       <template v-else><span style="font-weight:900; color:#e2e8f0; font-size:1rem">#{{ index + 1 }}</span></template>
                     </div>
                   </td>
@@ -136,7 +136,7 @@
             </div>
             
             <div v-if="!criteria.length" style="padding:4rem 2rem; text-align:center">
-              <div style="font-size:3rem; margin-bottom:1rem">📋</div>
+              <div style="font-size:3rem; margin-bottom:1rem"></div>
               <p style="color:#64748b; font-weight:600">El administrador aún no ha definido los criterios para este evento.</p>
             </div>
 

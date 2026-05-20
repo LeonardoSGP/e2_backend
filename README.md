@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">🎓 Deltos — Sistema de Gestión de Proyectos Académicos</h1>
+  <h1 align="center"> Deltos — Sistema de Gestión de Proyectos Académicos</h1>
   <p align="center">
     API REST robusta construida con <strong>Node.js</strong>, <strong>Express</strong>, <strong>TypeScript</strong> y <strong>Prisma ORM</strong> para la gestión integral de eventos, equipos, proyectos y evaluaciones académicas.
   </p>
@@ -20,18 +20,18 @@
 
 ---
 
-## 🌐 Entornos en Vivo (Producción)
+##  Entornos en Vivo (Producción)
 
-- **🖥️ Frontend (Netlify):** [https://silly-capybara-cf4d11.netlify.app](https://silly-capybara-cf4d11.netlify.app)
-- **⚙️ Backend API (Railway):** [https://e2backend-production-6af0.up.railway.app](https://e2backend-production-6af0.up.railway.app)
-- **📚 Documentación Swagger:** [https://e2backend-production-6af0.up.railway.app/api-docs](https://e2backend-production-6af0.up.railway.app/api-docs)
-- **🚀 Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Descargar e importar en Postman)
+- **️ Frontend (Netlify):** [https://silly-capybara-cf4d11.netlify.app](https://silly-capybara-cf4d11.netlify.app)
+- **️ Backend API (Railway):** [https://e2backend-production-6af0.up.railway.app](https://e2backend-production-6af0.up.railway.app)
+- ** Documentación Swagger:** [https://e2backend-production-6af0.up.railway.app/api-docs](https://e2backend-production-6af0.up.railway.app/api-docs)
+- ** Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Descargar e importar en Postman)
 
 > **Nota:** El backend en Railway puede tardar unos segundos en responder la primera vez si estuvo inactivo (cold start), aunque la cuenta Trial intenta mantenerlo activo.
 
 ---
 
-## 📑 Tabla de Contenidos
+##  Tabla de Contenidos
 
 - [Entornos en Vivo (Producción)](#-entornos-en-vivo-producción)
 - [Tecnologías Utilizadas](#-tecnologías-utilizadas)
@@ -53,7 +53,7 @@
 
 ---
 
-## 🛠 Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 | Categoría | Tecnología |
 |-----------|-----------|
@@ -73,7 +73,7 @@
 
 ---
 
-## 🏗 Arquitectura del Sistema
+##  Arquitectura del Sistema
 
 El backend implementa una **arquitectura multicapa modular** con separación clara de responsabilidades por dominio:
 
@@ -85,27 +85,27 @@ flowchart TD
     classDef helper   fill:#F3F4F6,stroke:#6B7280,stroke-width:1px,color:#374151
     classDef database fill:#DBEAFE,stroke:#1D4ED8,stroke-width:1px,color:#1E3A8A
 
-    Client["💻 Cliente — Frontend Vue 3<br/><i>Vite · Pinia · Router · Axios · Tailwind</i>"]:::frontend
+    Client[" Cliente — Frontend Vue 3<br/><i>Vite · Pinia · Router · Axios · Tailwind</i>"]:::frontend
 
-    subgraph Backend ["🐳 Backend Node.js + Express + TypeScript (Docker)"]
+    subgraph Backend [" Backend Node.js + Express + TypeScript (Docker)"]
         direction TB
-        API["🚀 app.ts / server.ts<br/><i>Middlewares · Rutas base · Swagger</i>"]:::entry
-        Auth["🛡️ Auth middleware (JWT)"]:::helper
+        API[" app.ts / server.ts<br/><i>Middlewares · Rutas base · Swagger</i>"]:::entry
+        Auth["️ Auth middleware (JWT)"]:::helper
 
-        subgraph Modulo ["📦 Módulo de dominio (ej. Proyectos)"]
+        subgraph Modulo [" Módulo de dominio (ej. Proyectos)"]
             direction TB
-            Router["📡 Router — capa de presentación<br/><i>proyecto.router.ts</i>"]:::layer
-            Zod["✅ Zod schema<br/><i>proyecto.schema.ts</i>"]:::helper
-            Service["⚙️ Service — capa de negocio<br/><i>proyecto.service.ts</i>"]:::layer
-            Mapper["🔄 Mapper<br/><i>proyecto.mapper.ts</i>"]:::helper
-            ErrorH["⚠️ Error handler<br/><i>captura AppError</i>"]:::helper
-            Repository["💾 Repository — capa de datos<br/><i>proyecto.repository.ts</i>"]:::layer
+            Router[" Router — capa de presentación<br/><i>proyecto.router.ts</i>"]:::layer
+            Zod[" Zod schema<br/><i>proyecto.schema.ts</i>"]:::helper
+            Service["️ Service — capa de negocio<br/><i>proyecto.service.ts</i>"]:::layer
+            Mapper[" Mapper<br/><i>proyecto.mapper.ts</i>"]:::helper
+            ErrorH["️ Error handler<br/><i>captura AppError</i>"]:::helper
+            Repository[" Repository — capa de datos<br/><i>proyecto.repository.ts</i>"]:::layer
         end
 
-        Prisma["🗃️ Prisma Client (ORM)"]:::entry
+        Prisma["️ Prisma Client (ORM)"]:::entry
     end
 
-    DB[("🛢️ MySQL 8.0")]:::database
+    DB[("️ MySQL 8.0")]:::database
 
     Client -- "Petición HTTP / REST" --> API
     API --> Auth
@@ -133,7 +133,7 @@ flowchart TD
 
 ---
 
-## 🐳 Infraestructura de Despliegue (Docker)
+##  Infraestructura de Despliegue (Docker)
 
 El `docker-compose.yml` orquesta **3 contenedores** que conforman el stack completo:
 
@@ -145,25 +145,25 @@ flowchart LR
     classDef database fill:#DBEAFE,stroke:#1D4ED8,stroke-width:2px,color:#1E3A8A
     classDef volume   fill:#FEF9C3,stroke:#CA8A04,stroke-width:1px,color:#713F12
 
-    Browser["🌐 Navegador\n(Usuario)"]:::user
+    Browser[" Navegador\n(Usuario)"]:::user
 
-    subgraph Docker ["🐳 Docker Compose — Stack Completo"]
+    subgraph Docker [" Docker Compose — Stack Completo"]
         direction LR
 
-        subgraph FE ["📦 Contenedor: e2_frontend"]
-            Nginx["🟢 Nginx Alpine\nSirve Vue 3 SPA\nPuerto externo: 8080"]:::frontend
+        subgraph FE [" Contenedor: e2_frontend"]
+            Nginx[" Nginx Alpine\nSirve Vue 3 SPA\nPuerto externo: 8080"]:::frontend
         end
 
-        subgraph BE ["📦 Contenedor: e2_backend"]
-            Node["🟣 Node.js 20 Alpine\nExpress + Prisma\nPuerto externo: 3002"]:::backend
+        subgraph BE [" Contenedor: e2_backend"]
+            Node[" Node.js 20 Alpine\nExpress + Prisma\nPuerto externo: 3002"]:::backend
         end
 
-        subgraph DB ["📦 Contenedor: e2_mysql"]
-            MySQL["🔵 MySQL 8.0\nBase de datos\nPuerto externo: 3307"]:::database
+        subgraph DB [" Contenedor: e2_mysql"]
+            MySQL[" MySQL 8.0\nBase de datos\nPuerto externo: 3307"]:::database
         end
 
-        Vol1[("📁 backend_uploads\nVolumen Docker")]:::volume
-        Vol2[("📁 db_data\nVolumen Docker")]:::volume
+        Vol1[(" backend_uploads\nVolumen Docker")]:::volume
+        Vol2[(" db_data\nVolumen Docker")]:::volume
     end
 
     Browser -- "HTTP :8080" --> Nginx
@@ -180,11 +180,11 @@ flowchart LR
 | `e2_backend` | Node.js 20 Alpine | `3002` | `3001` | API REST Express + Prisma |
 | `e2_mysql` | MySQL 8.0 | `3307` | `3306` | Base de datos relacional |
 
-> 📖 Para instrucciones detalladas del frontend (instalación, variables, proxy), consulta [`frontend/README.md`](./frontend/README.md).
+>  Para instrucciones detalladas del frontend (instalación, variables, proxy), consulta [`frontend/README.md`](./frontend/README.md).
 
 ---
 
-## 📂 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 e2_backend/
@@ -232,7 +232,7 @@ e2_backend/
 │   │       └── pdf.service.ts  # Servicio de generación de PDFs
 │   └── uploads/                # Archivos subidos (avatares, etc.)
 └── frontend/                   # Aplicación Vue 3 — ver frontend/README.md
-    ├── README.md               # 📖 Documentación del frontend
+    ├── README.md               #  Documentación del frontend
     ├── Dockerfile              # Build multi-stage (Vite + Nginx)
     ├── nginx.conf              # Proxy inverso al backend
     ├── vite.config.ts          # Proxy de desarrollo → backend :3001
@@ -241,7 +241,7 @@ e2_backend/
 
 ---
 
-## 📊 Diagrama de Entidad-Relación (UML)
+##  Diagrama de Entidad-Relación (UML)
 
 ```mermaid
 erDiagram
@@ -380,7 +380,7 @@ erDiagram
 ```
 ---
 
-## ⚙️ Instalación
+## ️ Instalación
 
 ### Requisitos Previos
 
@@ -415,7 +415,7 @@ npm run seed
 
 ---
 
-## 🔐 Variables de Entorno
+##  Variables de Entorno
 
 Crea un archivo `.env` en `backend/` basado en `.env.example`:
 
@@ -435,7 +435,7 @@ Crea un archivo `.env` en `backend/` basado en `.env.example`:
 
 ---
 
-## 🚀 Ejecución
+##  Ejecución
 
 ### Desarrollo (Hot Reload)
 
@@ -458,7 +458,7 @@ npm start        # Ejecuta dist/server.js
 
 ---
 
-## 🐳 Docker
+##  Docker
 
 El proyecto incluye un `docker-compose.yml` con **3 servicios** pre-configurados:
 
@@ -501,12 +501,12 @@ docker compose down
 
 ---
 
-## 📡 Endpoints de la API
+##  Endpoints de la API
 
-> 📖 Documentación interactiva completa en **[/api-docs](http://localhost:3001/api-docs)** (Swagger UI).
-> 🚀 **Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Importable en Postman).
+>  Documentación interactiva completa en **[/api-docs](http://localhost:3001/api-docs)** (Swagger UI).
+>  **Colección Postman:** [Deltos_API_Postman_Collection.json](./Deltos_API_Postman_Collection.json) (Importable en Postman).
 
-### 🔓 Autenticación (`/api/auth`)
+###  Autenticación (`/api/auth`)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -520,10 +520,10 @@ docker compose down
 | `POST` | `/api/auth/avatar` | Subir foto de perfil (multipart) |
 
 
-### 🔴 Rutas de Administrador (`/api/admin/...`) — Rol: `ADMIN`
+###  Rutas de Administrador (`/api/admin/...`) — Rol: `ADMIN`
 
 <details>
-<summary><b>👥 Usuarios</b> — <code>/api/admin/usuarios</code></summary>
+<summary><b> Usuarios</b> — <code>/api/admin/usuarios</code></summary>
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -537,7 +537,7 @@ docker compose down
 </details>
 
 <details>
-<summary><b>📅 Eventos</b> — <code>/api/admin/eventos</code></summary>
+<summary><b> Eventos</b> — <code>/api/admin/eventos</code></summary>
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -554,7 +554,7 @@ docker compose down
 </details>
 
 <details>
-<summary><b>📏 Criterios</b> — <code>/api/admin/criterios</code></summary>
+<summary><b> Criterios</b> — <code>/api/admin/criterios</code></summary>
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -565,7 +565,7 @@ docker compose down
 </details>
 
 <details>
-<summary><b>👥 Equipos</b> — <code>/api/admin/equipos</code></summary>
+<summary><b> Equipos</b> — <code>/api/admin/equipos</code></summary>
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -580,7 +580,7 @@ docker compose down
 </details>
 
 <details>
-<summary><b>📁 Proyectos</b> — <code>/api/admin/proyectos</code></summary>
+<summary><b> Proyectos</b> — <code>/api/admin/proyectos</code></summary>
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -593,7 +593,7 @@ docker compose down
 </details>
 
 <details>
-<summary><b>📊 Dashboard, Reportes y Más</b></summary>
+<summary><b> Dashboard, Reportes y Más</b></summary>
 
 | Módulo | Método | Ruta | Descripción |
 |--------|--------|------|-------------|
@@ -616,7 +616,7 @@ docker compose down
 
 </details>
 
-### 🟡 Rutas de Juez (`/api/juez/...`) — Rol: `JUEZ`
+###  Rutas de Juez (`/api/juez/...`) — Rol: `JUEZ`
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -625,7 +625,7 @@ docker compose down
 | `GET` | `/api/juez/evaluacion/:proyectoId` | Formulario de evaluación |
 | `POST` | `/api/juez/evaluacion/:proyectoId` | Guardar evaluación |
 
-### 🟢 Rutas de Participante (`/api/participante/...`) — Rol: `PARTICIPANTE`
+###  Rutas de Participante (`/api/participante/...`) — Rol: `PARTICIPANTE`
 
 <details>
 <summary><b>Ver todos los endpoints del participante</b></summary>
@@ -653,7 +653,7 @@ docker compose down
 
 </details>
 
-### ⚙️ Rutas del Sistema
+### ️ Rutas del Sistema
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -663,7 +663,7 @@ docker compose down
 
 ---
 
-## 📜 Scripts Disponibles
+##  Scripts Disponibles
 
 | Script | Comando | Descripción |
 |--------|---------|-------------|
@@ -686,7 +686,7 @@ npx prisma generate        # Regenerar el cliente Prisma
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 El proyecto implementa **dos niveles de tests** con Jest + ts-jest, todos sin necesidad de BD real (mocks de Prisma).
 
@@ -729,17 +729,17 @@ backend/tests/
 | **Integración** | `auth.test.ts` | 5 | Login HTTP 200, sin token 401, rol incorrecto 403, email vacío 400, password wrong 401 |
 | | | **20 total** | |
 
-> 📖 Los tests unitarios usan **mocks del repositorio** — se inyecta un objeto con `jest.fn()` en el constructor del Service, por lo que nunca tocan Prisma ni MySQL. Los tests de integración usan `supertest` + `jest.mock('../src/prisma.config')`.
+>  Los tests unitarios usan **mocks del repositorio** — se inyecta un objeto con `jest.fn()` en el constructor del Service, por lo que nunca tocan Prisma ni MySQL. Los tests de integración usan `supertest` + `jest.mock('../src/prisma.config')`.
 
 ---
 
-## 🧩 Patrones de Diseño Utilizados
+##  Patrones de Diseño Utilizados
 
 El sistema implementa cinco patrones de diseño reconocidos, cada uno justificado por una necesidad concreta del proyecto. A continuación se describe cada patrón con su ubicación exacta en el código.
 
 ---
 
-### 1. 🔁 Singleton
+### 1.  Singleton
 
 **Descripción:** Garantiza que exista una única instancia de un objeto durante toda la vida de la aplicación.
 
@@ -767,7 +767,7 @@ export const config = {        // ← objeto de configuración compartido global
 
 ---
 
-### 2. 🗄️ Repository
+### 2. ️ Repository
 
 **Descripción:** Abstrae la lógica de acceso a datos detrás de una interfaz, desacoplando la capa de negocio (Service) de la tecnología de persistencia (Prisma/MySQL).
 
@@ -797,7 +797,7 @@ export class ProyectoService {
 
 ---
 
-### 3. 🌐 API Gateway
+### 3.  API Gateway
 
 **Descripción:** Punto de entrada único que centraliza el enrutamiento, la seguridad y la orquestación de todas las peticiones externas hacia los servicios internos.
 
@@ -830,7 +830,7 @@ location /api/ { proxy_pass http://backend:3001; }
 
 ---
 
-### 4. 🔄 Mapper / DTO (Data Transfer Object)
+### 4.  Mapper / DTO (Data Transfer Object)
 
 **Descripción:** Transforma las entidades internas (modelos de Prisma con tipos `BigInt` y relaciones anidadas) en objetos de transferencia limpios y tipados que el cliente puede consumir directamente.
 
@@ -858,7 +858,7 @@ export function toProyectoResponse(proyecto: ProyectoConRelaciones) {
 
 ---
 
-### 5. ⛓️ Chain of Responsibility (Middleware Pipeline)
+### 5. ️ Chain of Responsibility (Middleware Pipeline)
 
 **Descripción:** Encadena manejadores de peticiones donde cada eslabón puede procesar la solicitud o pasarla al siguiente. Si alguno falla, la cadena se interrumpe y se devuelve la respuesta de error.
 
@@ -905,7 +905,7 @@ export const errorMiddleware = (err, req, res, next) => {
 
 ---
 
-## 🚀 Pipeline CI/CD
+##  Pipeline CI/CD
 
 El proyecto utiliza **GitHub Actions** con dos workflows separados: uno para Integración Continua (CI) y otro para Entrega Continua (CD).
 
@@ -925,27 +925,27 @@ Push / PR a master
         ▼
 ┌─────────────────────────────────┐   ┌──────────────────────────────────┐
 │       CI — backend-ci           │   │       CI — frontend-ci           │
-│  📥 checkout                    │   │  📥 checkout                     │
-│  ⚙️  Node.js 20 + npm cache    │   │  ⚙️  Node.js 20 + npm cache     │
-│  📦 npm ci                      │   │  📦 npm ci                       │
-│  🔍 tsc --noEmit (type-check)  │   │  🏗️  Vite build                 │
-│  🧪 Tests unitarios (15 tests) │   │  📤 Artefacto dist/              │
-│  🔗 Tests integración (5 tests) │   └──────────────────────────────────┘
-│  📊 jest --coverage             │
-│  🏗️  npm run build             │
-│  📤 Artefacto dist/ + coverage  │
+│   checkout                    │   │   checkout                     │
+│  ️  Node.js 20 + npm cache    │   │  ️  Node.js 20 + npm cache     │
+│   npm ci                      │   │   npm ci                       │
+│   tsc --noEmit (type-check)  │   │  ️  Vite build                 │
+│   Tests unitarios (15 tests) │   │   Artefacto dist/              │
+│   Tests integración (5 tests) │   └──────────────────────────────────┘
+│   jest --coverage             │
+│  ️  npm run build             │
+│   Artefacto dist/ + coverage  │
 └─────────────────────────────────┘
         │
         │  Solo en push directo a master (merge aprobado)
         ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              CD — docker-build-push                          │
-│  🏷️  Tagging automático (latest + sha)                     │
-│  🔑 Login en Docker Hub                                     │
-│  🏗️  Build multi-plataforma (linux/amd64 + linux/arm64)   │
-│  📤 Push → <usuario>/deltos-backend:latest                  │
-│  📤 Push → <usuario>/deltos-frontend:latest                 │
-│  📋 Resumen del deploy en GitHub Actions                    │
+│  ️  Tagging automático (latest + sha)                     │
+│   Login en Docker Hub                                     │
+│  ️  Build multi-plataforma (linux/amd64 + linux/arm64)   │
+│   Push → <usuario>/deltos-backend:latest                  │
+│   Push → <usuario>/deltos-frontend:latest                 │
+│   Resumen del deploy en GitHub Actions                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -962,7 +962,7 @@ Ve a tu repositorio → **Settings → Secrets and variables → Actions → New
 | `JWT_SECRET` | Secret | Valor seguro para el JWT de los tests |
 | `JWT_REFRESH_SECRET` | Secret | Valor seguro para el refresh token de los tests |
 
-> ⚠️ `DOCKERHUB_USERNAME` va en **Variables** (no Secrets) porque se referencia con `vars.` en el workflow.
+> ️ `DOCKERHUB_USERNAME` va en **Variables** (no Secrets) porque se referencia con `vars.` en el workflow.
 
 #### 2. Obtener un Access Token de Docker Hub
 
@@ -982,7 +982,7 @@ El CI **funciona sin ningún secret configurado** — los tests no necesitan BD 
 
 ---
 
-## 📌 Buenas Prácticas y Notas
+##  Buenas Prácticas y Notas
 
 - **Validación de entorno:** Las variables de entorno se validan al arrancar usando Zod. Si faltan o son inválidas, el servidor no arranca y muestra errores descriptivos.
 - **Autenticación JWT:** Todos los endpoints (excepto `/api/auth/register`, `/api/auth/login`, `/health` y `/`) requieren un token Bearer válido.
@@ -996,7 +996,7 @@ El CI **funciona sin ningún secret configurado** — los tests no necesitan BD 
 
 ---
 
-## 👥 Autores
+##  Autores
 
 | Nombre | Rol |
 |--------|-----|
@@ -1010,6 +1010,6 @@ El CI **funciona sin ningún secret configurado** — los tests no necesitan BD 
 
 <p align="center">
   <sub>
-    Hecho con ❤️ usando Node.js, Express, TypeScript y Prisma — Deltos &copy; 2026
+    Hecho con ️ usando Node.js, Express, TypeScript y Prisma — Deltos &copy; 2026
   </sub>
 </p>

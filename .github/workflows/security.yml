@@ -13,7 +13,7 @@
 #   2. lint     → verificar estilo y calidad del código TypeScript
 # ═══════════════════════════════════════════════════════════════════════════════
 
-name: 🔒 Security & Quality
+name:  Security & Quality
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
   # JOB 1: Auditoría de dependencias — detecta paquetes con CVEs conocidos
   # ─────────────────────────────────────────────────────────────────────────────
   audit:
-    name: 🛡️ Auditoría de dependencias
+    name: ️ Auditoría de dependencias
     runs-on: ubuntu-latest
 
     strategy:
@@ -45,28 +45,28 @@ jobs:
         working-directory: ${{ matrix.project }}
 
     steps:
-      - name: 📥 Checkout del código
+      - name:  Checkout del código
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configurar Node.js 20
+      - name: ️ Configurar Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: ${{ matrix.project }}/package-lock.json
 
-      - name: 📦 Instalar dependencias
+      - name:  Instalar dependencias
         run: npm ci
 
       # npm audit con nivel "high" — solo falla si hay vulnerabilidades altas o críticas
-      - name: 🔍 npm audit (${{ matrix.project }})
+      - name:  npm audit (${{ matrix.project }})
         run: npm audit --audit-level=high || true
         # "|| true" para que no falle el pipeline por warnings moderados
 
-      - name: 📋 Resumen de auditoría
+      - name:  Resumen de auditoría
         if: always()
         run: |
-          echo "## 🛡️ Auditoría — ${{ matrix.project }}" >> $GITHUB_STEP_SUMMARY
+          echo "## ️ Auditoría — ${{ matrix.project }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           npm audit --json | head -50 >> $GITHUB_STEP_SUMMARY || echo "Sin vulnerabilidades detectadas" >> $GITHUB_STEP_SUMMARY
 
@@ -74,7 +74,7 @@ jobs:
   # JOB 2: Lint — verificar calidad y consistencia del código TypeScript
   # ─────────────────────────────────────────────────────────────────────────────
   lint:
-    name: ✨ Lint & Type-Check
+    name:  Lint & Type-Check
     runs-on: ubuntu-latest
 
     defaults:
@@ -82,26 +82,26 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: 📥 Checkout del código
+      - name:  Checkout del código
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configurar Node.js 20
+      - name: ️ Configurar Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: 📦 Instalar dependencias
+      - name:  Instalar dependencias
         run: npm ci
 
       # Verificación estricta de tipos TypeScript
-      - name: 🔍 TypeScript strict type-check
+      - name:  TypeScript strict type-check
         run: npx tsc --noEmit --strict 2>&1 || true
 
       # Verificar que no hay imports sin usar o variables muertas
-      - name: 🧹 Verificar código limpio (no dead code)
+      - name:  Verificar código limpio (no dead code)
         run: |
-          echo "## ✨ Análisis de calidad" >> $GITHUB_STEP_SUMMARY
+          echo "##  Análisis de calidad" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Type-check y análisis de código completados." >> $GITHUB_STEP_SUMMARY
+          echo " Type-check y análisis de código completados." >> $GITHUB_STEP_SUMMARY

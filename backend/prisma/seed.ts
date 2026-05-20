@@ -8,7 +8,7 @@ const rnd = (min: number, max: number) => Math.floor(Math.random() * (max - min 
 const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
 async function main() {
-  console.log('🌱 Seeding database (versión extendida)...\n')
+  console.log(' Seeding database (versión extendida)...\n')
 
   // ── Limpiar BD ────────────────────────────────────────────────────────────
   await prisma.evaluaciones.deleteMany()
@@ -25,7 +25,7 @@ async function main() {
   await prisma.perfiles.deleteMany()
   await prisma.user_preferences.deleteMany()
   await prisma.users.deleteMany()
-  console.log('🗑️  Base de datos limpiada\n')
+  console.log('️  Base de datos limpiada\n')
 
   // ── CARRERAS ──────────────────────────────────────────────────────────────
   const carrerasData = [
@@ -41,7 +41,7 @@ async function main() {
     { nombre: 'Licenciatura en Administración',         clave: 'LA'  },
   ]
   await prisma.carreras.createMany({ data: carrerasData })
-  console.log(`✅ ${carrerasData.length} carreras creadas`)
+  console.log(` ${carrerasData.length} carreras creadas`)
 
   // ── PERFILES ──────────────────────────────────────────────────────────────
   const perfilesData = [
@@ -56,7 +56,7 @@ async function main() {
   ]
   await prisma.perfiles.createMany({ data: perfilesData })
   const perfiles = await prisma.perfiles.findMany()
-  console.log(`✅ ${perfilesData.length} perfiles creados`)
+  console.log(` ${perfilesData.length} perfiles creados`)
 
   // ── EVENTOS (6 en total) ──────────────────────────────────────────────────
   const now = new Date()
@@ -103,7 +103,7 @@ async function main() {
     const created = await prisma.eventos.create({ data: ev })
     eventos.push(created)
   }
-  console.log(`✅ ${eventos.length} eventos creados`)
+  console.log(` ${eventos.length} eventos creados`)
 
   // ── CRITERIOS POR EVENTO ──────────────────────────────────────────────────
   const criterioSets = [
@@ -153,7 +153,7 @@ async function main() {
       data: criterioSets[i].map(c => ({ evento_id: eventos[i].id, ...c }))
     })
   }
-  console.log('✅ Criterios de evaluación creados para todos los eventos')
+  console.log(' Criterios de evaluación creados para todos los eventos')
 
   // ── CONTRASEÑA HASHEADA ───────────────────────────────────────────────────
   const hashedPass = await bcrypt.hash('password', 10)
@@ -165,7 +165,7 @@ async function main() {
     { name: 'Diana López',             email: 'diana@test.com',    password: hashedPass, role: 'ADMIN' as const, updated_at: new Date() },
   ]
   await prisma.users.createMany({ data: adminsData })
-  console.log(`✅ ${adminsData.length} administradores creados`)
+  console.log(` ${adminsData.length} administradores creados`)
 
   // ── JUECES (20) ───────────────────────────────────────────────────────────
   const juecesNombres = [
@@ -185,7 +185,7 @@ async function main() {
   }))
   await prisma.users.createMany({ data: juecesData })
   const jueces = await prisma.users.findMany({ where: { role: 'JUEZ' } })
-  console.log(`✅ ${jueces.length} jueces creados`)
+  console.log(` ${jueces.length} jueces creados`)
 
   // ── ASIGNAR JUECES A EVENTOS ──────────────────────────────────────────────
   // Eventos 0-3 (finalizados + activos) → primeros 6 jueces
@@ -205,7 +205,7 @@ async function main() {
       })
     }
   }
-  console.log('✅ Jueces asignados a eventos')
+  console.log(' Jueces asignados a eventos')
 
   // ── PARTICIPANTES (50) ────────────────────────────────────────────────────
   const nombresParticipantes = [
@@ -237,7 +237,7 @@ async function main() {
   }))
   await prisma.users.createMany({ data: participantesData })
   const participantes = await prisma.users.findMany({ where: { role: 'PARTICIPANTE' } })
-  console.log(`✅ ${participantes.length} participantes creados`)
+  console.log(` ${participantes.length} participantes creados`)
 
   // ── USER PREFERENCES (admins y algunos participantes) ────────────────────
   const admins = await prisma.users.findMany({ where: { role: 'ADMIN' } })
@@ -250,7 +250,7 @@ async function main() {
       }
     })
   }
-  console.log('✅ Preferencias de usuario creadas para admins')
+  console.log(' Preferencias de usuario creadas para admins')
 
   // ── EQUIPOS + MIEMBROS + PROYECTOS + AVANCES + EVALUACIONES ──────────────
   const rolesEquipo = ['LIDER', 'PROGRAMADOR', 'PROGRAMADOR', 'DISENADOR', 'TESTER']
@@ -394,7 +394,7 @@ async function main() {
       equipoIdx++
     }
 
-    console.log(`✅ ${equiposPorEvento} equipos/proyectos creados para: ${eventosData[e].nombre}`)
+    console.log(` ${equiposPorEvento} equipos/proyectos creados para: ${eventosData[e].nombre}`)
   }
 
   // ── RESUMEN ───────────────────────────────────────────────────────────────
@@ -411,7 +411,7 @@ async function main() {
     interacciones: await prisma.equipo_interacciones.count(),
   }
 
-  console.log('\n📊 RESUMEN FINAL:')
+  console.log('\n RESUMEN FINAL:')
   console.log(`   Carreras:       ${totales.carreras}`)
   console.log(`   Perfiles:       ${totales.perfiles}`)
   console.log(`   Eventos:        ${totales.eventos}`)
@@ -422,9 +422,9 @@ async function main() {
   console.log(`   Evaluaciones:   ${totales.evaluaciones}`)
   console.log(`   Certificados:   ${totales.certificados}`)
   console.log(`   Interacciones:  ${totales.interacciones}`)
-  console.log('\n🎉 Seed extendido completado exitosamente!')
+  console.log('\n Seed extendido completado exitosamente!')
 }
 
 main()
-  .catch(e => { console.error('🚫 Error:', e); process.exit(1) })
+  .catch(e => { console.error(' Error:', e); process.exit(1) })
   .finally(() => prisma.$disconnect())

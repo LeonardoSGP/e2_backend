@@ -83,7 +83,7 @@
                   </div>
                 </div>
                 <div class="form-actions">
-                  <span v-if="profileSaved" class="saved-indicator">✓ Guardado correctamente.</span>
+                  <span v-if="profileSaved" class="saved-indicator"> Guardado correctamente.</span>
                   <button type="submit" class="btn-primary" :disabled="savingProfile">
                     {{ savingProfile ? 'Guardando...' : 'Guardar' }}
                   </button>
@@ -115,7 +115,7 @@
                   </div>
                 </div>
                 <div class="form-actions">
-                  <span v-if="passwordSaved" class="saved-indicator">✓ Contraseña actualizada.</span>
+                  <span v-if="passwordSaved" class="saved-indicator"> Contraseña actualizada.</span>
                   <button type="submit" class="btn-primary" :disabled="savingPassword">
                     {{ savingPassword ? 'Guardando...' : 'Guardar' }}
                   </button>

@@ -354,7 +354,7 @@
         <div class="modal-content" style="max-width:800px">
           <div class="modal-header">
             <h3 style="font-size:1.125rem;font-weight:700;color:var(--text-primary)">Desglose de Calificaciones</h3>
-            <button @click="showMetrics = false" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.25rem">✕</button>
+            <button @click="showMetrics = false" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.25rem"></button>
           </div>
           <div class="modal-body" style="padding:2rem">
             <div class="metrics-grid">
@@ -394,7 +394,7 @@
         <div class="modal-content" style="max-width:500px">
           <div class="modal-header">
             <h3 style="font-size:1.125rem;font-weight:700;color:var(--text-primary)">Transferir Liderazgo</h3>
-            <button @click="showLeaveModal = false" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.25rem">✕</button>
+            <button @click="showLeaveModal = false" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.25rem"></button>
           </div>
           <div class="modal-body" style="padding:1.5rem">
             <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;line-height:1.5">

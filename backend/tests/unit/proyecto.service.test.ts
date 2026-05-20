@@ -5,11 +5,11 @@
  * totalmente mockeado. No se toca Prisma ni la red.
  *
  * Cobertura:
- *   ✅ getAllProyectos  — paginación correcta
- *   ✅ getProyectoById — lanza AppError 404 si no existe
- *   ✅ createProyecto  — delega al repositorio y retorna el proyecto creado
- *   ✅ updateProyecto  — lanza AppError 404 si no existe
- *   ✅ deleteProyecto  — lanza AppError 404 si no existe
+ *    getAllProyectos  — paginación correcta
+ *    getProyectoById — lanza AppError 404 si no existe
+ *    createProyecto  — delega al repositorio y retorna el proyecto creado
+ *    updateProyecto  — lanza AppError 404 si no existe
+ *    deleteProyecto  — lanza AppError 404 si no existe
  */
 
 import { ProyectoService } from '../../src/modules/proyectos/proyecto.service';

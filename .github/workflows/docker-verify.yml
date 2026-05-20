@@ -12,7 +12,7 @@
 #   2. docker-build  → construye las imágenes Docker sin publicar (dry run)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-name: 🐳 Docker Verify
+name:  Docker Verify
 
 on:
   push:
@@ -37,20 +37,20 @@ jobs:
   # JOB 1: Validar sintaxis de docker-compose.yml
   # ─────────────────────────────────────────────────────────────────────────────
   validate:
-    name: ✅ Validar docker-compose.yml
+    name:  Validar docker-compose.yml
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout del código
+      - name:  Checkout del código
         uses: actions/checkout@v4
 
       # Verificar que el archivo docker-compose.yml tiene sintaxis válida
-      - name: 🔍 Validar sintaxis (docker compose config)
+      - name:  Validar sintaxis (docker compose config)
         run: docker compose config --quiet
 
-      - name: 📋 Mostrar configuración resuelta
+      - name:  Mostrar configuración resuelta
         run: |
-          echo "## 🐳 Docker Compose — Configuración validada" >> $GITHUB_STEP_SUMMARY
+          echo "##  Docker Compose — Configuración validada" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```yaml' >> $GITHUB_STEP_SUMMARY
           docker compose config >> $GITHUB_STEP_SUMMARY
@@ -60,7 +60,7 @@ jobs:
   # JOB 2: Construir imágenes Docker (sin publicar) — verifica Dockerfiles
   # ─────────────────────────────────────────────────────────────────────────────
   docker-build:
-    name: 🏗️ Build imágenes Docker (dry-run)
+    name: ️ Build imágenes Docker (dry-run)
     runs-on: ubuntu-latest
     needs: validate
 
@@ -75,14 +75,14 @@ jobs:
             dockerfile: ./frontend/Dockerfile
 
     steps:
-      - name: 📥 Checkout del código
+      - name:  Checkout del código
         uses: actions/checkout@v4
 
-      - name: 🔧 Configurar Docker Buildx
+      - name:  Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # Construir la imagen SIN hacer push (solo verificar que el Dockerfile funciona)
-      - name: 🏗️ Build ${{ matrix.service }} (sin push)
+      - name: ️ Build ${{ matrix.service }} (sin push)
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
@@ -92,9 +92,9 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,scope=${{ matrix.service }},mode=max
 
-      - name: 📋 Resumen
+      - name:  Resumen
         run: |
-          echo "## 🏗️ Docker Build — ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "## ️ Docker Build — ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Imagen \`deltos-${{ matrix.service }}:ci-test\` construida correctamente." >> $GITHUB_STEP_SUMMARY
+          echo " Imagen \`deltos-${{ matrix.service }}:ci-test\` construida correctamente." >> $GITHUB_STEP_SUMMARY
           echo "**Dockerfile:** \`${{ matrix.dockerfile }}\`" >> $GITHUB_STEP_SUMMARY

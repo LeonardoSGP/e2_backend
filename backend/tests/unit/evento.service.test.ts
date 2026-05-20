@@ -5,11 +5,11 @@
  * totalmente mockeado. No se toca Prisma ni la red.
  *
  * Cobertura:
- *   ✅ getEventoById — lanza AppError 404 si no existe
- *   ✅ createEvento  — lanza AppError 400 si fecha_inicio es en el pasado
- *   ✅ createEvento  — lanza AppError 400 si fecha_fin <= fecha_inicio
- *   ✅ deleteEvento  — lanza AppError 404 si no existe
- *   ✅ deleteEvento  — lanza AppError 400 si el evento ya comenzó
+ *    getEventoById — lanza AppError 404 si no existe
+ *    createEvento  — lanza AppError 400 si fecha_inicio es en el pasado
+ *    createEvento  — lanza AppError 400 si fecha_fin <= fecha_inicio
+ *    deleteEvento  — lanza AppError 404 si no existe
+ *    deleteEvento  — lanza AppError 400 si el evento ya comenzó
  */
 
 import { EventoService } from '../../src/modules/eventos/evento.service';

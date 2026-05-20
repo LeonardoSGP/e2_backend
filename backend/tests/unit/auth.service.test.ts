@@ -6,11 +6,11 @@
  * No se toca Prisma ni la red.
  *
  * Cobertura:
- *   ✅ login — lanza AppError 401 si usuario no existe
- *   ✅ login — lanza AppError 401 si la contraseña es incorrecta
- *   ✅ login — devuelve token y refreshToken si las credenciales son válidas
- *   ✅ refreshAccessToken — lanza AppError 401 si el refreshToken es inválido
- *   ✅ getMe — lanza AppError 404 si el usuario no existe
+ *    login — lanza AppError 401 si usuario no existe
+ *    login — lanza AppError 401 si la contraseña es incorrecta
+ *    login — devuelve token y refreshToken si las credenciales son válidas
+ *    refreshAccessToken — lanza AppError 401 si el refreshToken es inválido
+ *    getMe — lanza AppError 404 si el usuario no existe
  */
 
 import jwt from 'jsonwebtoken';

@@ -233,7 +233,7 @@
         <div class="modal-footer">
            <button @click="inviteModal.show = false" class="btn-modal-cancel">Cancelar</button>
            <button @click="sendInvitation" class="btn-modal-send" :disabled="inviting">
-              <span v-if="!inviting">✓ Enviar Invitación</span>
+              <span v-if="!inviting"> Enviar Invitación</span>
               <div v-else class="spinner-white" style="width:1.25rem;height:1.25rem"></div>
            </button>
         </div>

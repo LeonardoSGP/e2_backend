@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">🖥️ Deltos — Frontend Vue 3</h1>
+  <h1 align="center">️ Deltos — Frontend Vue 3</h1>
   <p align="center">
     Interfaz de usuario construida con <strong>Vue 3</strong>, <strong>Vite</strong>, <strong>Pinia</strong> y <strong>Tailwind CSS</strong> para el Sistema de Gestión de Proyectos Académicos.
   </p>
@@ -15,7 +15,7 @@
 
 ---
 
-## 📑 Tabla de Contenidos
+##  Tabla de Contenidos
 
 - [Tecnologías](#-tecnologías)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
@@ -29,7 +29,7 @@
 
 ---
 
-## 🛠 Tecnologías
+##  Tecnologías
 
 | Categoría        | Tecnología                              |
 |------------------|-----------------------------------------|
@@ -48,7 +48,7 @@
 
 ---
 
-## 📂 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 frontend/
@@ -77,7 +77,7 @@ frontend/
 
 ---
 
-## ✅ Requisitos Previos
+##  Requisitos Previos
 
 - **Node.js** ≥ 20
 - **npm** (incluido con Node.js)
@@ -85,7 +85,7 @@ frontend/
 
 ---
 
-## ⚙️ Instalación
+## ️ Instalación
 
 ```bash
 # Desde la raíz del repositorio, entrar al directorio frontend
@@ -97,7 +97,7 @@ npm install
 
 ---
 
-## 🔗 Conexión al Backend
+##  Conexión al Backend
 
 El frontend se comunica con el backend a través de **Axios** y las **variables de entorno**.
 
@@ -122,7 +122,7 @@ server: {
 }
 ```
 
-> ✅ **No es necesario ningún cambio** si el backend corre en `localhost:3001` (puerto por defecto). El proxy evita problemas de CORS en desarrollo.
+>  **No es necesario ningún cambio** si el backend corre en `localhost:3001` (puerto por defecto). El proxy evita problemas de CORS en desarrollo.
 
 Si el backend corre en otro puerto, cambia el valor de `target` en `vite.config.ts`.
 
@@ -143,7 +143,7 @@ El nombre `backend` corresponde al nombre del servicio definido en `docker-compo
 
 ---
 
-## 🚀 Ejecución
+##  Ejecución
 
 ### Desarrollo (con hot reload)
 
@@ -156,7 +156,7 @@ npm run dev
 - **Frontend:** [http://localhost:5173](http://localhost:5173)
 - El proxy redirige `/api/*` → `http://localhost:3001`
 
-> ⚠️ El backend debe estar corriendo antes de iniciar el frontend. Consulta la [guía de ejecución del backend](../README.md#-ejecución).
+> ️ El backend debe estar corriendo antes de iniciar el frontend. Consulta la [guía de ejecución del backend](../README.md#-ejecución).
 
 ### Preview del build de producción
 
@@ -167,7 +167,7 @@ npm run preview  # Sirve el build localmente en http://localhost:4173
 
 ---
 
-## 🏗 Construcción para Producción
+##  Construcción para Producción
 
 ```bash
 npm run build
@@ -177,7 +177,7 @@ Los archivos compilados se generan en `frontend/dist/`. Esta carpeta es la que N
 
 ---
 
-## 🐳 Docker
+##  Docker
 
 El frontend tiene su propio `Dockerfile` con **build multi-stage**:
 
@@ -209,7 +209,7 @@ Servicios disponibles tras levantar el stack:
 
 ---
 
-## 🔐 Variables de Entorno
+##  Variables de Entorno
 
 El frontend en **modo desarrollo** no requiere un archivo `.env` gracias al proxy de Vite.
 
@@ -226,12 +226,12 @@ Y usar la variable en tu código:
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? '/api'
 ```
 
-> ⚠️ En producción con Docker, la URL la gestiona Nginx automáticamente. No se necesita `.env`.
+> ️ En producción con Docker, la URL la gestiona Nginx automáticamente. No se necesita `.env`.
 
 ---
 
 <p align="center">
   <sub>
-    Hecho con ❤️ usando Vue 3, Vite y Tailwind CSS — Deltos &copy; 2026
+    Hecho con ️ usando Vue 3, Vite y Tailwind CSS — Deltos &copy; 2026
   </sub>
 </p>

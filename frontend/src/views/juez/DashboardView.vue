@@ -72,7 +72,7 @@
                     <h4 style="font-size:.8rem;font-weight:700;color:var(--text-primary); margin:0">{{ p.nombre }}</h4>
                     <p style="font-size:.7rem;color:var(--text-muted); margin:0">{{ p.equipo?.nombre || p.equipo || '-' }}</p>
                   </div>
-                  <span v-if="p.evaluado" class="badge badge-participante" style="font-size: 0.65rem">✓ Calificado</span>
+                  <span v-if="p.evaluado" class="badge badge-participante" style="font-size: 0.65rem"> Calificado</span>
                   <span v-else class="badge badge-juez" style="font-size: 0.65rem">Pendiente</span>
                 </div>
               </div>
