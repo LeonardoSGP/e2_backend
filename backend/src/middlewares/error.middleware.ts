@@ -2,7 +2,9 @@ import { Application, Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors';
 
 export const errorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('[Error]:', err);
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('[Error]:', err);
+  }
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
