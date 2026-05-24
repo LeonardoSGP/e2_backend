@@ -54,17 +54,17 @@ async function main() {
   console.log(`${perfilesData.length} perfiles creados`)
 
   // ── ADMIN (usuario inicial del sistema) ────────────────────────────────────
-  const hashedPass = await bcrypt.hash('admin123', 10)
+  const hashedPass = await bcrypt.hash('password', 10)
   await prisma.users.create({
     data: {
       name:       'Administrador',
-      email:      'admin@deltos.com',
+      email:      'admin@test.com',
       password:   hashedPass,
       role:       'ADMIN',
       updated_at: new Date(),
     }
   })
-  console.log('1 administrador creado (admin@deltos.com / admin123)')
+  console.log('1 administrador creado (admin@test.com / password)')
 
   // ── RESUMEN ───────────────────────────────────────────────────────────────
   console.log('\nSeed de produccion completado:')
