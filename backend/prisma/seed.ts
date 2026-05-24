@@ -29,7 +29,7 @@ async function main() {
     { nombre: 'Ingenieria Industrial',                  clave: 'II'  },
     { nombre: 'Ingenieria Electronica',                 clave: 'IE'  },
     { nombre: 'Ingenieria Mecanica',                    clave: 'IM'  },
-    { nombre: 'Ingenieria Mecatronica',                 clave: 'IMT' },
+    { nombre: 'Ingenieria Quimica',                    clave: 'IQ'  },
     { nombre: 'Ingenieria Electrica',                   clave: 'IEL' },
     { nombre: 'Ingenieria Civil',                       clave: 'IC'  },
     { nombre: 'Ingenieria en Gestion Empresarial',      clave: 'IGE' },
